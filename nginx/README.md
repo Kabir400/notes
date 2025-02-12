@@ -152,8 +152,8 @@ sudo systemctl reload nginx
 
 Modify `location /`:
 
-```nginx
-try_files $uri $uri/ /index.html;
+```
+try_files $uri $uri/ $uri.html /index.html;
 ```
 
 ---
