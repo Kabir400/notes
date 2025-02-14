@@ -122,7 +122,7 @@ http {
 Create a virtual host file:
 
 ```bash
-sudo nano /etc/nginx/sites-available/react-app
+sudo nano /etc/nginx/sites-available/react-app.conf
 ```
 
 Add the following:
@@ -157,6 +157,37 @@ try_files $uri $uri/ $uri.html /index.html;
 ```
 
 ---
+
+## `index` and `try_files`
+
+### `index`
+
+The `index` directive in NGINX specifies the default file to serve when a directory is requested.
+
+#### Example:
+
+```nginx
+index index.html index.htm;
+```
+
+If `index.html` exists, it will be served; otherwise, `index.htm` will be tried.
+
+### `try_files`
+
+The `try_files` directive checks for the existence of files or directories in order and serves the first match.
+
+#### Example:
+
+```nginx
+try_files $uri /index.html;
+```
+
+If the requested file (`$uri`) exists, it is served; otherwise, `index.html` is used as a fallback.
+
+### Key Difference
+
+- `index` is mainly for setting a default file when accessing a directory.
+- `try_files` provides more flexibility by allowing multiple fallback options, including redirects.
 
 ## **6. Reverse Proxy with NGINX**
 
@@ -225,8 +256,8 @@ upstream backend {
 ### Static Site Hosting
 
 - You can create individual config files for different subdomains like:
-  - _/etc/nginx/conf.d/cafe.kabir.com.conf_ → Serves cafe.kabir.com
-  - /etc/nginx/conf.d/profile.kabir.com.conf → Serves profile.kabir.com
+  - `_/etc/nginx/conf.d/cafe.kabir.com.conf_` → `Serves cafe.kabir.com`
+  - `/etc/nginx/conf.d/profile.kabir.com.conf` → `Serves profile.kabir.com`
 - Each config file can specify different root directories and settings for serving different static sites.
 
 ### Load Balancer and Reverse Proxy:
@@ -296,7 +327,9 @@ sudo certbot renew --dry-run
 
 ---
 
-## **10. HTTP Caching with NGINX**
+## Static File Caching in NGINX
+
+### Configuration Example:
 
 ```nginx
 location /static/ {
@@ -304,6 +337,40 @@ location /static/ {
     add_header Cache-Control "public, max-age=2592000";
 }
 ```
+
+### Explanation:
+
+- This tells the browser to cache static files for **30 days**.
+- `expires 30d;` is a shorthand that sets the `Expires` HTTP header.
+- `Cache-Control: public, max-age=2592000;` explicitly tells browsers and CDNs how long to cache files.
+
+---
+
+## Handling WebSockets in NGINX
+
+NGINX can act as a reverse proxy for WebSocket connections by properly forwarding upgrade headers.
+
+### Configuration Example:
+
+```nginx
+server {
+    listen 80;
+    server_name example.com;
+
+    location /ws/ {
+        proxy_pass http://backend_server;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+    }
+}
+```
+
+### Key Directives:
+
+- `proxy_http_version 1.1;` → Ensures HTTP/1.1 is used for WebSockets.
+- `proxy_set_header Upgrade $http_upgrade;` → Passes the `Upgrade` header for WebSocket handshake.
+- `proxy_set_header Connection "Upgrade";` → Keeps the connection alive for WebSocket communication.
 
 ---
 
