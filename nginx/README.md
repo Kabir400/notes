@@ -34,6 +34,12 @@ ls -lah
 # Edit a file with nano or vim
 nano <file_name>
 vim <file_name>
+
+# Exit from vim
+:q → Exit (if no changes were made)
+:q! → Exit without saving changes
+:wq or :x → Save and exit
+ZZ (Shift + ZZ) → Save and exit (shortcut)
 ```
 
 ---
